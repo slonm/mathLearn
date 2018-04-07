@@ -1,0 +1,167 @@
+<HTML>
+	<head>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+		<title>Математическая разминка</title>
+		<script language="JavaScript" type="text/javascript" src="jquery-1.8.3.min.js" ></script>
+		<script language="JavaScript" type="text/javascript" src="jquery.jplayer.min.js" ></script>
+		<script language="JavaScript" type="text/javascript" src="jplayer.playlist.min.js" ></script>
+		<script language="JavaScript" type="text/javascript">
+		//<![CDATA[
+		//const
+		var number_max = 20; 
+		var use_zero = true; 
+		var right_smile = 'face-smile.png'; 
+		var wrong_smile = 'face-sad.png'; 
+		var placeholder = '<img src="question.png" alt="?">'; 
+		
+		//variables
+		var right_answer;
+	        var number_min=use_zero?0:1;	
+		var myPlaylist;
+
+		function rand(min, max){
+		  return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+		
+		function play(names){
+		  var list=[];
+		  for ( var key in names ){
+		    list.push({title:names[key], 
+                   oga:names[key]+'.ogg'});
+		  }
+		  myPlaylist.setPlaylist(list);
+		}
+		
+		function nextTask(){
+		  var action=Math.round(Math.random());
+		  var arg=[];
+		  arg[1]=action?rand(number_min, number_max - number_min)
+		                 :rand(number_min + 1, number_max);
+		  arg[2]=action?rand(number_min, number_max - arg[1])
+		                 :rand(number_min + 1, arg[1] - number_min );
+		  var action_sym=action?'+':'-';		 
+		  arg[3]=eval(arg[1]+' '+action_sym+' '+arg[2]);
+		  var question=rand(1, 3);
+		  right_answer=arg[question];
+		  
+		  $('#action').text(action_sym);
+		  for(var i=1;i<=3;i++){
+		    $('#arg'+i).html(i===question?placeholder:arg[i]);
+		  }
+		  if(question===3){
+		  play([arg[1], 
+		        action?'plus':'minus',
+			arg[2]]);
+		  }
+		  else
+		  play([question===1?'some':arg[1],
+		        action?'plus':'minus',
+			question===2?'some':arg[2],
+			'eq', question===3?'some':arg[3]]);
+		}
+		
+		function choice(val){
+		  if (right_answer===val) 
+		  {
+  		    $('#right_smile_count').text(eval($('#right_smile_count').text()+'+ 1'));
+  		    $('#right_smiles').append('<img src="'+right_smile+'">');
+		    play(['true']);
+		  }
+		  else
+		  {
+  		    $('#wrong_smile_count').text(eval($('#wrong_smile_count').text()+'+ 1'));
+  		    $('#wrong_smiles').append('<img src="'+wrong_smile+'">');
+		    $(wrongs).append('<tr><td><table>'+$('#example').html().split(placeholder).join('?')
+		      +'</table></td><td>Дан ответ:</td><td>'+val+'</td></tr>');
+		    play(['false']);
+		  }
+		  window.setTimeout(function( n ) {
+			    nextTask();
+			}, 1000);
+		}
+		
+		$(document).ready(function() {
+			for(var i=number_min;i<=number_max;i++){
+			  $('#answers').append('<input type=button value='+i+' onClick="javascript: choice('+i+');">');
+			}
+			
+			myPlaylist = new jPlayerPlaylist({
+					  jPlayer: "#jquery_jplayer_N",
+					  cssSelectorAncestor: "#jp_container_N"
+					}, [], {
+					  playlistOptions: {
+					    enableRemoveControls: true
+					  },
+            swfPath: "",
+					  supplied: "oga"
+					});
+      myPlaylist.option("autoPlay", true);
+			nextTask();
+		});
+		//]]>
+		</script>
+		<style>
+		BODY{
+		  text-align:center;
+		}
+		
+		#smiles{
+		  margin: left;
+		  font-size:40;
+		}
+		
+		#example tr td{
+		  font-size:60;
+		}
+		
+		input{
+		  font-size:45;
+		  margin:10px;
+		  padding:10px 25px 10px 25px;
+		  border-width:4;
+		}
+		
+		#example{
+		  margin: auto;
+		}
+		#jp_container_N{
+		  display:none;
+		}  
+		</style>
+	</head>
+	<BODY>
+		<div id="jp_container_N">
+		  <div id="jquery_jplayer_N" class="jp-jplayer"></div>
+		  <div class="jp-playlist">
+		    <ul>
+            <!-- The method Playlist.displayPlaylist() uses this unordered list -->
+		      <li></li>
+		    </ul>
+		  </div>
+		</div>
+		
+		<h1>Математическая разминка</h1>
+		<br>
+		<table id=smiles>
+		  <tr><td id=right_smile_count>0</td><td id=right_smiles /></tr>
+		  <tr><td id=wrong_smile_count>0</td><td id=wrong_smiles /></tr>
+		</table>
+		<hr>
+		<br>
+		<table id=example>
+		  <tr><td id=arg1 /><td id=action /><td id=arg2 /><td>=</td><td id=arg3 /></tr>
+		</table>
+		
+		<br><br><br><br><br><br>
+		<form>
+		<div id='answers' ></div>
+		<hr>
+		<br><br><br><br><br><br>
+		<input type=submit value=Сначала>
+		</form>
+		<table id=wrongs>
+		  <tr><td>Неправильно:</td><td></td><td></td></tr>
+		</table>
+		</table>
+	</BODY>
+</HTML>
